@@ -457,17 +457,18 @@ HTML
             });
         }
         
-        // Launch Jobber specifically breaking out of PWA sandboxes
+        // Launch Jobber with the CORRECT com.getjobber.jobber Android Package
         function launchJobber() {
             var userAgent = navigator.userAgent || navigator.vendor || window.opera;
             
             // If Android, use an Intent to force the app open
             if (/android/i.test(userAgent)) {
-                window.location.href = "intent://secure.getjobber.com/#Intent;scheme=https;package=com.getjobber.android;end";
+                // FIXED PACKAGE NAME HERE
+                window.location.href = "intent://open.getjobber.com/#Intent;scheme=https;package=com.getjobber.jobber;end";
             } 
-            // If iOS, open in a new tab which breaks out of the PWA sandbox and allows Apple to trigger Universal Links
+            // If iOS, open in a new tab which breaks out of the PWA sandbox
             else {
-                window.open("https://secure.getjobber.com/", "_blank", "noopener,noreferrer");
+                window.open("https://open.getjobber.com/", "_blank", "noopener,noreferrer");
             }
         }
 
