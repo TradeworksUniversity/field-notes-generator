@@ -1,3 +1,4 @@
+HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -270,8 +271,7 @@
         <textarea id="finalNote" rows="14" readonly style="font-family: monospace; background: #f8f9fa; font-size: 0.9rem;"></textarea>
         
         <button type="button" class="btn-copy" id="copyBtn" onclick="copyNote()">1. Copy Note to Clipboard</button>
-        <!-- Notice we removed target="_blank" so the phone intercepts the URL directly -->
-        <a href="https://open.getjobber.com/" class="btn-jobber">2. Open Jobber App</a>
+        <button type="button" class="btn-jobber" onclick="launchJobber()">2. Open Jobber App</button>
     </div>
 
     <script>
@@ -455,6 +455,20 @@
                     copyBtn.style.background = "#28a745";
                 }, 3000);
             });
+        }
+        
+        // Launch Jobber specifically breaking out of PWA sandboxes
+        function launchJobber() {
+            var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            
+            // If Android, use an Intent to force the app open
+            if (/android/i.test(userAgent)) {
+                window.location.href = "intent://secure.getjobber.com/#Intent;scheme=https;package=com.getjobber.android;end";
+            } 
+            // If iOS, open in a new tab which breaks out of the PWA sandbox and allows Apple to trigger Universal Links
+            else {
+                window.open("https://secure.getjobber.com/", "_blank", "noopener,noreferrer");
+            }
         }
 
         // Service Worker
