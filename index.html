@@ -19,10 +19,22 @@
         h2 { text-align: center; color: #2c3e50; font-size: 1.4rem; margin-bottom: 5px; }
         p.subtitle { text-align: center; color: #7f8c8d; margin-top: 0; font-size: 0.9rem; margin-bottom: 20px; }
         .section-title { background: #34495e; color: white; padding: 6px 10px; font-size: 0.9rem; font-weight: bold; border-radius: 4px; margin-top: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
-        label { display: block; margin-top: 12px; font-weight: 600; font-size: 0.95rem; }
+        label { display: block; margin-top: 14px; font-weight: 600; font-size: 0.95rem; }
         span.hint { display: block; color: #7f8c8d; font-size: 0.8rem; font-weight: normal; margin-top: 2px; font-style: italic; }
-        input, textarea { width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
+        input, textarea, select { width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; background-color: white; }
         textarea { resize: vertical; }
+        
+        /* Conditional Box Layouts */
+        .conditional-box { display: none; background: #eef2f5; padding: 12px; border-left: 4px solid #007bc4; margin-top: 8px; border-radius: 0 4px 4px 0; }
+        .nested-box { margin-top: 8px; padding-left: 10px; border-left: 2px dashed #95a5a6; }
+        
+        /* Checkbox Group Layouts */
+        .checkbox-row { display: flex; align-items: center; margin-top: 8px; font-weight: normal; font-size: 0.95rem; background: white; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .checkbox-row input { width: auto; margin-top: 0; margin-right: 10px; transform: scale(1.2); }
+        .checkbox-group { margin-top: 8px; background: #fff; padding: 10px; border-radius: 4px; border: 1px solid #ccc; }
+        .checkbox-item { display: flex; align-items: flex-start; margin-bottom: 8px; font-weight: normal; font-size: 0.9rem; margin-top:0; }
+        .checkbox-item input { width: auto; margin-top: 3px; margin-right: 10px; }
+        
         button { margin-top: 20px; padding: 12px; width: 100%; color: white; border: none; border-radius: 4px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: background 0.2s; }
         .btn-generate { background: #007bc4; }
         .btn-generate:hover { background: #005fa4; }
@@ -37,49 +49,196 @@
     <p class="subtitle">Fill out the fields to build your Jobber note chronologically.</p>
 
     <form id="noteForm" onsubmit="event.preventDefault(); generateNote();">
-        <!-- PHASE 1 -->
-        <div class="section-title">1. Arrival & Diagnostics</div>
         
-        <label>Property Access & Directions
-            <span class="hint">Start with: "Property is located..." or "Access gate code is..." (Type "Easy to find" if standard)</span>
-        </label>
-        <input type="text" id="directions" required placeholder="Property is located...">
+        <!-- SECTION 1: ARRIVAL & COMPONENTS -->
+        <div class="section-title">1. Arrival & Component Mapping</div>
+        
+        <label>Is the property hard to find or does it have specific access rules?</label>
+        <select id="hardToFind" onchange="toggleBox('hardToFindBox', this.value, 'yes')">
+            <option value="no">No, easy to find / standard access</option>
+            <option value="yes">Yes, requires finding instructions or gate codes</option>
+        </select>
 
-        <label>Component Locations Found
-            <span class="hint">Start with: "Well head is located... pressure tank is in..."</span>
-        </label>
-        <textarea id="locations" rows="2" required placeholder="Well head is located..."></textarea>
+        <div id="hardToFindBox" class="conditional-box">
+            <label>Provide finding instructions, landmarks, or gate codes:</label>
+            <input type="text" id="directions" placeholder="e.g., Property is located past the third red barn...">
+        </div>
 
-        <label>Customer Consultation/Notes
-            <span class="hint">Start with: "Spoke with customer regarding..." (Type "None" if customer wasn't home)</span>
-        </label>
-        <textarea id="conversations" rows="2" required placeholder="Spoke with customer regarding..."></textarea>
+        <label style="margin-top:20px;">Which system components did you locate on-site? <span class="hint">Check all that apply to this job</span></label>
+        
+        <!-- Well Head -->
+        <div class="checkbox-row">
+            <input type="checkbox" id="checkWell" onchange="toggleElement('wellBox', this.checked)">
+            <label for="checkWell" style="margin:0; cursor:pointer;">Well Head</label>
+        </div>
+        <div id="wellBox" class="conditional-box">
+            <label>Where is the Well Head located?</label>
+            <select id="locWell" onchange="toggleBox('wellOtherBox', this.value, 'OTHER')">
+                <option value="in the front yard">Front Yard</option>
+                <option value="in the back yard">Back Yard</option>
+                <option value="buried / in a pit">Buried / In a Pit</option>
+                <option value="inside the well house">Inside the Well House</option>
+                <option value="OTHER">Other Location...</option>
+            </select>
+            <div id="wellOtherBox" class="conditional-box nested-box">
+                <input type="text" id="wellOtherTxt" placeholder="Specify landmark (e.g., 20ft past the back patio)">
+            </div>
+        </div>
 
-        <!-- PHASE 2 -->
-        <div class="section-title">2. Work Executed</div>
+        <!-- Pressure Tank -->
+        <div class="checkbox-row">
+            <input type="checkbox" id="checkTank" onchange="toggleElement('tankBox', this.checked)">
+            <label for="checkTank" style="margin:0; cursor:pointer;">Pressure Tank</label>
+        </div>
+        <div id="tankBox" class="conditional-box">
+            <label>Where is the Pressure Tank located?</label>
+            <select id="locTank" onchange="toggleBox('tankOtherBox', this.value, 'OTHER')">
+                <option value="in the crawlspace">Crawlspace</option>
+                <option value="in the basement">Basement</option>
+                <option value="in the pump house">Pump House</option>
+                <option value="in the garage">Garage</option>
+                <option value="OTHER">Other Location...</option>
+            </select>
+            <div id="tankOtherBox" class="conditional-box nested-box">
+                <input type="text" id="tankOtherTxt" placeholder="Specify landmark (e.g., utility closet off the kitchen)">
+            </div>
+        </div>
 
-        <label>Work Performed & Materials Used
-            <span class="hint">Start with: "Pulled and replaced... Installed [Quantity, Type, Size]..."</span>
-        </label>
-        <textarea id="workDone" rows="3" required placeholder="Pulled and replaced..."></textarea>
+        <!-- Control Box -->
+        <div class="checkbox-row">
+            <input type="checkbox" id="checkControls" onchange="toggleElement('controlsBox', this.checked)">
+            <label for="checkControls" style="margin:0; cursor:pointer;">Control Box / Electrical</label>
+        </div>
+        <div id="controlsBox" class="conditional-box">
+            <label>Where are the Controls located?</label>
+            <select id="locControls" onchange="toggleBox('controlsOtherBox', this.value, 'OTHER')">
+                <option value="next to the pressure tank">Next to the Pressure Tank</option>
+                <option value="by the main electrical panel">By the Main Electrical Panel</option>
+                <option value="on the exterior wall">On the Exterior Wall</option>
+                <option value="OTHER">Other Location...</option>
+            </select>
+            <div id="controlsOtherBox" class="conditional-box nested-box">
+                <input type="text" id="controlsOtherTxt" placeholder="Specify location">
+            </div>
+        </div>
 
-        <label>Dirt Work Breakdown
-            <span class="hint">Start with: "Machine time was X hours..." (Type "N/A" if no dirt work)</span>
-        </label>
-        <input type="text" id="dirtWork" required placeholder="N/A">
+        <!-- Sewer Lid -->
+        <div class="checkbox-row">
+            <input type="checkbox" id="checkSewer" onchange="toggleElement('sewerBox', this.checked)">
+            <label for="checkSewer" style="margin:0; cursor:pointer;">Sewer Lid / Septic Access</label>
+        </div>
+        <div id="sewerBox" class="conditional-box">
+            <label>Where is the Sewer Lid located?</label>
+            <select id="locSewer" onchange="toggleBox('sewerOtherBox', this.value, 'OTHER')">
+                <option value="in the back yard">Back Yard</option>
+                <option value="near the septic tank drainage field">Near the Septic Tank Field</option>
+                <option value="under the deck infrastructure">Under the Deck</option>
+                <option value="OTHER">Other Location...</option>
+            </select>
+            <div id="sewerOtherBox" class="conditional-box nested-box">
+                <input type="text" id="sewerOtherTxt" placeholder="Specify location">
+            </div>
+        </div>
 
-        <!-- PHASE 3 -->
-        <div class="section-title">3. Testing & Closeout</div>
+        <!-- Other Components -->
+        <div class="checkbox-row">
+            <input type="checkbox" id="checkOtherComp" onchange="toggleElement('otherCompBox', this.checked)">
+            <label for="checkOtherComp" style="margin:0; cursor:pointer;">Other System Component...</label>
+        </div>
+        <div id="otherCompBox" class="conditional-box">
+            <label>Describe what the component is and where it is located:</label>
+            <input type="text" id="otherCompTxt" placeholder="e.g., Water filtration system in the garage...">
+        </div>
 
-        <label>System Testing & Future Estimates
-            <span class="hint">Start with: "System tested and operating at... Future change order needed for..."</span>
-        </label>
-        <textarea id="testing" rows="2" required placeholder="System tested and operating at..."></textarea>
+        <!-- SECTION 2: CUSTOMER COMMUNICATION -->
+        <div class="section-title">2. Customer Communication</div>
+        
+        <label>Did you speak with the customer face-to-face on-site?</label>
+        <select id="faceToFace" onchange="toggleCommunicationBoxes(this.value)">
+            <option value="Yes">Yes, spoke with them in person</option>
+            <option value="No">No, did not see them face-to-face</option>
+        </select>
 
-        <label>Time Tracking & Job Completion Status
-            <span class="hint">Start with: "Spent X mins drive / Y hours labor. Job is 100% complete..."</span>
-        </label>
-        <textarea id="status" rows="2" required placeholder="Spent X mins drive..."></textarea>
+        <!-- If Spoke In Person -->
+        <div id="spokeInPersonBox" class="conditional-box" style="display: block;">
+            <label>What did you discuss or update them on?</label>
+            <textarea id="conversations" rows="2" placeholder="e.g., Explained the low pressure issue and went over the repair plan..."></textarea>
+        </div>
+
+        <!-- If Did NOT Spoke In Person -->
+        <div id="noFaceToFaceBox" class="conditional-box">
+            <label>Why wasn't a face-to-face conversation possible?</label>
+            <select id="whyNoFace">
+                <option value="Customer was not home / not on-site.">Customer was not home / not on-site</option>
+                <option value="Customer was home but requested no physical contact.">Customer was home but requested no physical contact</option>
+                <option value="Commercial property / spoke with off-site manager.">Commercial property / spoke with off-site manager</option>
+            </select>
+
+            <label>Check all digital updates successfully sent to the customer today:</label>
+            <div class="checkbox-group">
+                <label class="checkbox-item"><input type="checkbox" id="callArrival"> Call/Text sent upon arrival.</label>
+                <label class="checkbox-item"><input type="checkbox" id="callUpdates"> Call/Text sent mid-day with progress.</label>
+                <label class="checkbox-item"><input type="checkbox" id="callDeparture"> Call/Text sent at end of day regarding status/payment.</label>
+            </div>
+        </div>
+
+        <!-- SECTION 3: WORK EXECUTED -->
+        <div class="section-title">3. Work Executed</div>
+
+        <label>Detail the physical work done and materials used:</label>
+        <textarea id="workDone" rows="3" required placeholder="e.g., Replaced failing pressure switch and gauge. Used 1x 40/60 Square D switch..."></textarea>
+
+        <label>Did this job require dirt work or excavation?</label>
+        <select id="hasDirtWork" onchange="toggleBox('dirtWorkBox', this.value, 'Yes')">
+            <option value="No">No dirt work performed</option>
+            <option value="Yes">Yes, dirt work performed</option>
+        </select>
+
+        <div id="dirtWorkBox" class="conditional-box">
+            <label>Break down the hours spent:</label>
+            <input type="text" id="dirtWork" placeholder="e.g., Machine time was 2 hours, standard labor was 1 hour...">
+        </div>
+
+        <!-- SECTION 4: TESTING & CLOSEOUT -->
+        <div class="section-title">4. Testing & Closeout</div>
+
+        <label>Is the system fully tested and operating correctly?</label>
+        <select id="systemTesting" onchange="toggleBox('testingDetailsBox', this.value, 'Issues')">
+            <option value="Operational">Yes, fully operational</option>
+            <option value="Issues">No, issues remain / system needs further attention</option>
+        </select>
+
+        <div id="testingDetailsBox" class="conditional-box">
+            <label>Explain what issues remain or what isn't functioning right:</label>
+            <textarea id="testingDetails" rows="2" placeholder="e.g., System pressurizes but control box is overheating..."></textarea>
+        </div>
+
+        <label>Are future change orders or return estimate values needed?</label>
+        <select id="hasChangeOrder" onchange="toggleBox('changeOrderBox', this.value, 'Yes')">
+            <option value="No">No further estimates needed</option>
+            <option value="Yes">Yes, office needs to estimate a follow-up</option>
+        </select>
+
+        <div id="changeOrderBox" class="conditional-box">
+            <label>Provide technical constraints for the office (distances, elevation, etc):</label>
+            <textarea id="changeOrderDetails" rows="2" placeholder="e.g., Requires return trip to trench an extra 40ft with a 10ft elevation rise..."></textarea>
+        </div>
+
+        <!-- TIME TRACKING -->
+        <label>What is your drive time?</label>
+        <input type="text" id="driveTime" required placeholder="e.g., 30 mins">
+
+        <label>What is your labor time?</label>
+        <input type="text" id="laborTime" required placeholder="e.g., 2 hours">
+
+        <!-- UPDATED STATUS / PAYMENT OPTIONS -->
+        <label>What is the final status of this job and payment?</label>
+        <select id="jobStatus">
+            <option value="Job is 100% complete and payment was collected on site.">100% Complete (Payment Collected On Site)</option>
+            <option value="Job is 100% complete. Customer paid the office over the phone.">100% Complete (Paid Office Over Phone)</option>
+            <option value="Job is 100% complete. Received approval to leave without payment collected.">100% Complete (Approved to Leave Without Payment)</option>
+            <option value="Job is incomplete. A return visit is required to finish outstanding tasks.">Incomplete (Return Trip Required)</option>
+        </select>
 
         <button type="submit" class="btn-generate">Generate Note Below</button>
     </form>
@@ -87,64 +246,157 @@
     <!-- SAME SCREEN OUTPUT -->
     <div id="outputSection">
         <label style="margin-top: 0; color: #2c3e50;">Your Formatted Jobber Note:</label>
-        <textarea id="finalNote" rows="12" readonly style="font-family: monospace; background: #f8f9fa; font-size: 0.9rem;"></textarea>
+        <textarea id="finalNote" rows="14" readonly style="font-family: monospace; background: #f8f9fa; font-size: 0.9rem;"></textarea>
         <button type="button" class="btn-copy" onclick="copyNote()">Copy Note to Clipboard</button>
     </div>
 
     <script>
+        // Form Toggle Functions
+        function toggleBox(boxId, value, triggerValue) {
+            const box = document.getElementById(boxId);
+            if (value === triggerValue) {
+                box.style.display = 'block';
+                box.querySelector('input, textarea')?.setAttribute('required', 'true');
+            } else {
+                box.style.display = 'none';
+                box.querySelector('input, textarea')?.removeAttribute('required');
+            }
+        }
+
+        // Toggles specific communication logic
+        function toggleCommunicationBoxes(value) {
+            const inPersonBox = document.getElementById('spokeInPersonBox');
+            const noFaceBox = document.getElementById('noFaceToFaceBox');
+            
+            if (value === 'Yes') {
+                inPersonBox.style.display = 'block';
+                inPersonBox.querySelector('textarea').setAttribute('required', 'true');
+                noFaceBox.style.display = 'none';
+            } else {
+                inPersonBox.style.display = 'none';
+                inPersonBox.querySelector('textarea').removeAttribute('required');
+                noFaceBox.style.display = 'block';
+            }
+        }
+
+        // Checkbox Element Toggle
+        function toggleElement(elementId, isChecked) {
+            document.getElementById(elementId).style.display = isChecked ? 'block' : 'none';
+        }
+
+        // Helper to add periods
+        function ensurePeriod(text) {
+            if (!text) return "";
+            text = text.trim();
+            if (text && !text.endsWith('.')) {
+                return text + '.';
+            }
+            return text;
+        }
+
+        // Main Note Generation
         function generateNote() {
-            // Grab inputs
-            let directions = document.getElementById('directions').value.trim();
-            let locations = document.getElementById('locations').value.trim();
-            let conversations = document.getElementById('conversations').value.trim();
-            let workDone = document.getElementById('workDone').value.trim();
-            let dirtWork = document.getElementById('dirtWork').value.trim();
-            let testing = document.getElementById('testing').value.trim();
-            let status = document.getElementById('status').value.trim();
+            // 1. ARRIVAL & COMPONENTS PARAGRAPH
+            let hardToFind = document.getElementById('hardToFind').value;
+            let arrivalPara = hardToFind === 'no' 
+                ? "Property was standard navigation and easy to find. " 
+                : `Property navigation notes: ${ensurePeriod(document.getElementById('directions').value)} `;
 
-            // Auto-add periods if techs forget them at the end of their text input
-            if (!directions.endsWith('.')) directions += '.';
-            if (!locations.endsWith('.')) locations += '.';
-            if (!conversations.endsWith('.')) conversations += '.';
-            if (!workDone.endsWith('.')) workDone += '.';
-            if (!dirtWork.endsWith('.')) dirtWork += '.';
-            if (!testing.endsWith('.')) testing += '.';
-            if (!status.endsWith('.')) status += '.';
+            let componentsPara = "";
+            const components = [
+                { id: 'Well', name: 'Well Head' },
+                { id: 'Tank', name: 'Pressure Tank' },
+                { id: 'Controls', name: 'Control Box/Electrical' },
+                { id: 'Sewer', name: 'Sewer Lid/Septic Access' }
+            ];
 
-            // Handle optional dirt work visibility
-            let dirtText = "";
-            if (dirtWork && dirtWork.toLowerCase() !== 'n/a' && dirtWork.toLowerCase() !== 'n/a.') {
-                dirtText = ` ${dirtWork}`;
+            components.forEach(comp => {
+                if (document.getElementById('check' + comp.id).checked) {
+                    let loc = document.getElementById('loc' + comp.id).value;
+                    if (loc === 'OTHER') {
+                        loc = document.getElementById(comp.id.toLowerCase() + 'OtherTxt').value;
+                    }
+                    componentsPara += `${comp.name} is located ${loc}. `;
+                }
+            });
+            
+            if (document.getElementById('checkOtherComp').checked) {
+                componentsPara += ensurePeriod(document.getElementById('otherCompTxt').value) + " ";
             }
 
-            // Build pure paragraph blocks with no titles or brackets
-            const noteText = `${directions} ${locations} ${conversations}\n\n` +
-                             `${workDone}${dirtText}\n\n` +
-                             `${testing}\n\n` +
-                             `${status}`;
+            if (componentsPara === "") {
+                componentsPara = "No specific infrastructure components were mapped during this visit.";
+            }
             
-            // Populate and show text box on same screen
-            document.getElementById('finalNote').value = noteText;
+            let p1 = arrivalPara + componentsPara.trim();
+
+            // 2. COMMUNICATION PARAGRAPH
+            let p2 = "";
+            if (document.getElementById('faceToFace').value === 'Yes') {
+                p2 = `Spoke face-to-face with the customer on-site. ${ensurePeriod(document.getElementById('conversations').value)}`;
+            } else {
+                p2 = `${document.getElementById('whyNoFace').value} `;
+                let digitalUpdates = [];
+                if (document.getElementById('callArrival').checked) digitalUpdates.push("Arrival");
+                if (document.getElementById('callUpdates').checked) digitalUpdates.push("Mid-day progress");
+                if (document.getElementById('callDeparture').checked) digitalUpdates.push("Departure/End-of-day");
+                
+                if (digitalUpdates.length > 0) {
+                    p2 += `Digital updates sent via Call/Text: ${digitalUpdates.join(", ")}.`;
+                } else {
+                    p2 += `No digital updates were sent to the customer today.`;
+                }
+            }
+
+            // 3. WORK EXECUTED PARAGRAPH
+            let p3 = ensurePeriod(document.getElementById('workDone').value);
+            if (document.getElementById('hasDirtWork').value === 'Yes') {
+                p3 += ` Dirt work breakdown: ${ensurePeriod(document.getElementById('dirtWork').value)}`;
+            }
+
+            // 4. TESTING & CLOSEOUT PARAGRAPH
+            let p4 = "";
+            if (document.getElementById('systemTesting').value === 'Issues') {
+                p4 += `Testing: Issues remain. ${ensurePeriod(document.getElementById('testingDetails').value)} `;
+            } else {
+                p4 += `System is fully tested and operating correctly. `;
+            }
+
+            if (document.getElementById('hasChangeOrder').value === 'Yes') {
+                p4 += `Future Estimate/Change Order Notes: ${ensurePeriod(document.getElementById('changeOrderDetails').value)} `;
+            }
+            
+            let driveTime = document.getElementById('driveTime').value.trim();
+            let laborTime = document.getElementById('laborTime').value.trim();
+            p4 += `Time Tracking: ${driveTime} drive time, ${laborTime} labor. `;
+            
+            p4 += `Status: ${document.getElementById('jobStatus').value}`;
+
+            // COMPILE FINAL OUTPUT
+            const finalOutput = `${p1}\n\n${p2}\n\n${p3}\n\n${p4.trim()}`;
+
+            // Show and Scroll
+            const finalNoteEl = document.getElementById('finalNote');
+            finalNoteEl.value = finalOutput;
+            
             const outputDiv = document.getElementById('outputSection');
             outputDiv.style.display = 'block';
-            
-            // Scroll down so they see it instantly
             outputDiv.scrollIntoView({ behavior: 'smooth' });
         }
 
+        // Copy to Clipboard
         function copyNote() {
             const copyText = document.getElementById('finalNote');
             copyText.select();
-            copyText.setSelectionRange(0, 99999); // Mobile compatibility
-            navigator.clipboard.writeText(copyText.value);
-            alert("Note copied! Switch to Jobber and paste it.");
+            copyText.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(copyText.value).then(() => {
+                alert("Note copied! Switch to Jobber and paste it.");
+            });
         }
 
-        // Register the blank service worker to allow Android WebAPK installation
+        // Service Worker
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('Service Worker Registered'))
-                .catch(err => console.log('Service Worker Failed', err));
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Failed', err));
         }
     </script>
 </body>
