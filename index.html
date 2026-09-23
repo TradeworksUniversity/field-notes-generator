@@ -271,10 +271,26 @@ HTML
         <textarea id="finalNote" rows="14" readonly style="font-family: monospace; background: #f8f9fa; font-size: 0.9rem;"></textarea>
         
         <button type="button" class="btn-copy" id="copyBtn" onclick="copyNote()">1. Copy Note to Clipboard</button>
-        <button type="button" class="btn-jobber" onclick="launchJobber()">2. Open Jobber App</button>
+        
+        <!-- NATIVE ANCHOR LINK (Set by JS below to force App Open) -->
+        <a id="nativeJobberLink" class="btn-jobber" href="https://secure.getjobber.com/">2. Open Jobber App</a>
     </div>
 
     <script>
+        // Check Device OS and inject correct Native deep link
+        document.addEventListener("DOMContentLoaded", function() {
+            var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            var jobberBtn = document.getElementById('nativeJobberLink');
+            
+            if (/android/i.test(userAgent)) {
+                // Tells Android OS to directly launch the application matching this package
+                jobberBtn.href = "intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=com.getjobber.jobber;end";
+            } else {
+                // iOS relies on Universal Links matching a domain
+                jobberBtn.href = "https://secure.getjobber.com/";
+            }
+        });
+
         // Standard Conditional Box Toggle
         function toggleBox(boxId, value, triggerValue) {
             const box = document.getElementById(boxId);
@@ -455,21 +471,6 @@ HTML
                     copyBtn.style.background = "#28a745";
                 }, 3000);
             });
-        }
-        
-        // Launch Jobber with the CORRECT com.getjobber.jobber Android Package
-        function launchJobber() {
-            var userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            
-            // If Android, use an Intent to force the app open
-            if (/android/i.test(userAgent)) {
-                // FIXED PACKAGE NAME HERE
-                window.location.href = "intent://open.getjobber.com/#Intent;scheme=https;package=com.getjobber.jobber;end";
-            } 
-            // If iOS, open in a new tab which breaks out of the PWA sandbox
-            else {
-                window.open("https://open.getjobber.com/", "_blank", "noopener,noreferrer");
-            }
         }
 
         // Service Worker
