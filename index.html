@@ -117,14 +117,11 @@
                 dirtText = ` ${dirtWork}`;
             }
 
-            // Build pure paragraph chunks
-            const noteText = `=== FIELD SERVICE TECHNICIAN NOTE ===\n\n` +
-                             `[SITE ARRIVAL & DIAGNOSTICS]\n` +
-                             `${directions} ${locations} ${conversations}\n\n` +
-                             `[WORK EXECUTED]\n` +
+            // Build pure paragraph blocks with no titles or brackets
+            const noteText = `${directions} ${locations} ${conversations}\n\n` +
                              `${workDone}${dirtText}\n\n` +
-                             `[TESTING & JOB CLOSEOUT]\n` +
-                             `${testing} ${status}`;
+                             `${testing}\n\n` +
+                             `${status}`;
             
             // Populate and show text box on same screen
             document.getElementById('finalNote').value = noteText;
