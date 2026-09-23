@@ -1,0 +1,16 @@
+{
+  "short_name": "Note Gen",
+  "name": "Your Company Note Generator",
+  "icons": [
+    {
+      "src": "icon.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "index.html",
+  "background_color": "#f4f6f8",
+  "display": "standalone",
+  "theme_color": "#34495e"
+}
