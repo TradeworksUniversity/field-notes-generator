@@ -94,32 +94,37 @@
     <script>
         function generateNote() {
             // Grab inputs
-            const directions = document.getElementById('directions').value;
-            const locations = document.getElementById('locations').value;
-            const conversations = document.getElementById('conversations').value;
-            const workDone = document.getElementById('workDone').value;
-            const dirtWork = document.getElementById('dirtWork').value;
-            const testing = document.getElementById('testing').value;
-            const status = document.getElementById('status').value;
+            let directions = document.getElementById('directions').value.trim();
+            let locations = document.getElementById('locations').value.trim();
+            let conversations = document.getElementById('conversations').value.trim();
+            let workDone = document.getElementById('workDone').value.trim();
+            let dirtWork = document.getElementById('dirtWork').value.trim();
+            let testing = document.getElementById('testing').value.trim();
+            let status = document.getElementById('status').value.trim();
+
+            // Auto-add periods if techs forget them at the end of their text input
+            if (!directions.endsWith('.')) directions += '.';
+            if (!locations.endsWith('.')) locations += '.';
+            if (!conversations.endsWith('.')) conversations += '.';
+            if (!workDone.endsWith('.')) workDone += '.';
+            if (!dirtWork.endsWith('.')) dirtWork += '.';
+            if (!testing.endsWith('.')) testing += '.';
+            if (!status.endsWith('.')) status += '.';
 
             // Handle optional dirt work visibility
-            let dirtLine = "";
-            if (dirtWork && dirtWork.toLowerCase() !== 'n/a' && dirtWork.trim() !== '') {
-                dirtLine = `• Dirt Work Breakdown: ${dirtWork}\n`;
+            let dirtText = "";
+            if (dirtWork && dirtWork.toLowerCase() !== 'n/a' && dirtWork.toLowerCase() !== 'n/a.') {
+                dirtText = ` ${dirtWork}`;
             }
 
-            // Build chronological string
-            const noteText = `=== FIELD SERVICE TECHNICIAN NOTE ===\n` +
+            // Build pure paragraph chunks
+            const noteText = `=== FIELD SERVICE TECHNICIAN NOTE ===\n\n` +
                              `[SITE ARRIVAL & DIAGNOSTICS]\n` +
-                             `• Property Directions: ${directions}\n` +
-                             `• Component Locations Found: ${locations}\n` +
-                             `• Customer Consultation/Notes: ${conversations}\n\n` +
+                             `${directions} ${locations} ${conversations}\n\n` +
                              `[WORK EXECUTED]\n` +
-                             `• Work Performed & Materials Used: ${workDone}\n` +
-                             `${dirtLine}\n` +
+                             `${workDone}${dirtText}\n\n` +
                              `[TESTING & JOB CLOSEOUT]\n` +
-                             `• System Testing & Future Estimates: ${testing}\n` +
-                             `• Time Tracking & Job Completion Status: ${status}`;
+                             `${testing} ${status}`;
             
             // Populate and show text box on same screen
             document.getElementById('finalNote').value = noteText;
