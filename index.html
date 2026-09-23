@@ -1,3 +1,4 @@
+HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -203,11 +204,27 @@
         <div class="section-title">4. Testing & Closeout</div>
 
         <label>Is the system fully tested and operating correctly?</label>
-        <select id="systemTesting" onchange="toggleBox('testingDetailsBox', this.value, 'Issues')">
+        <select id="systemTesting" required onchange="toggleTestingBoxes(this.value)">
+            <option value="" selected disabled>-- Select Testing Status --</option>
             <option value="Operational">Yes, fully operational</option>
             <option value="Issues">No, issues remain / system needs further attention</option>
         </select>
 
+        <!-- Operational Testing Data Box -->
+        <div id="operationalDetailsBox" class="conditional-box">
+            <label>System Testing Verification <span class="hint">Log the readings (pressure, amps, cycles) for all 3 phases:</span></label>
+            
+            <input type="text" id="testDiagnostic" placeholder="1. Diagnostic Test Data (Before repair)...">
+            <input type="text" id="testRepair" placeholder="2. Post-Repair Data (After adjustments)..." style="margin-top: 8px;">
+            <input type="text" id="testFinal" placeholder="3. Final Verification Data (Before leaving)..." style="margin-top: 8px;">
+
+            <div class="checkbox-row" style="margin-top: 15px;">
+                <input type="checkbox" id="confirmTesting" value="Yes">
+                <label for="confirmTesting" style="margin:0; cursor:pointer; font-size: 0.85rem;">I confirm the system operates within specified parameters and meets customer expectations.</label>
+            </div>
+        </div>
+
+        <!-- Issues Remaining Box -->
         <div id="testingDetailsBox" class="conditional-box">
             <label>Explain what issues remain or what isn't functioning right:</label>
             <textarea id="testingDetails" rows="2" placeholder="e.g., System pressurizes but control box is overheating..."></textarea>
@@ -231,7 +248,7 @@
         <label>What is your labor time?</label>
         <input type="text" id="laborTime" required placeholder="e.g., 2 hours">
 
-        <!-- UPDATED STATUS / PAYMENT OPTIONS -->
+        <!-- STATUS / PAYMENT OPTIONS -->
         <label>What is the final status of this job and payment?</label>
         <select id="jobStatus">
             <option value="Job is 100% complete and payment was collected on site.">100% Complete (Payment Collected On Site)</option>
@@ -247,11 +264,11 @@
     <div id="outputSection">
         <label style="margin-top: 0; color: #2c3e50;">Your Formatted Jobber Note:</label>
         <textarea id="finalNote" rows="14" readonly style="font-family: monospace; background: #f8f9fa; font-size: 0.9rem;"></textarea>
-        <button type="button" class="btn-copy" onclick="copyNote()">Copy Note to Clipboard</button>
+        <button type="button" class="btn-copy" onclick="copyNote()">Copy Note & Open Jobber</button>
     </div>
 
     <script>
-        // Form Toggle Functions
+        // Standard Conditional Box Toggle
         function toggleBox(boxId, value, triggerValue) {
             const box = document.getElementById(boxId);
             if (value === triggerValue) {
@@ -276,6 +293,34 @@
                 inPersonBox.style.display = 'none';
                 inPersonBox.querySelector('textarea').removeAttribute('required');
                 noFaceBox.style.display = 'block';
+            }
+        }
+
+        // Toggles the mandatory testing fields logic
+        function toggleTestingBoxes(value) {
+            const opBox = document.getElementById('operationalDetailsBox');
+            const issuesBox = document.getElementById('testingDetailsBox');
+            
+            if (value === 'Operational') {
+                opBox.style.display = 'block';
+                issuesBox.style.display = 'none';
+                
+                document.getElementById('testDiagnostic').setAttribute('required', 'true');
+                document.getElementById('testRepair').setAttribute('required', 'true');
+                document.getElementById('testFinal').setAttribute('required', 'true');
+                document.getElementById('confirmTesting').setAttribute('required', 'true');
+                
+                document.getElementById('testingDetails').removeAttribute('required');
+            } else if (value === 'Issues') {
+                opBox.style.display = 'none';
+                issuesBox.style.display = 'block';
+                
+                document.getElementById('testingDetails').setAttribute('required', 'true');
+                
+                document.getElementById('testDiagnostic').removeAttribute('required');
+                document.getElementById('testRepair').removeAttribute('required');
+                document.getElementById('testFinal').removeAttribute('required');
+                document.getElementById('confirmTesting').removeAttribute('required');
             }
         }
 
@@ -356,10 +401,12 @@
 
             // 4. TESTING & CLOSEOUT PARAGRAPH
             let p4 = "";
-            if (document.getElementById('systemTesting').value === 'Issues') {
+            let testingStatus = document.getElementById('systemTesting').value;
+            
+            if (testingStatus === 'Issues') {
                 p4 += `Testing: Issues remain. ${ensurePeriod(document.getElementById('testingDetails').value)} `;
-            } else {
-                p4 += `System is fully tested and operating correctly. `;
+            } else if (testingStatus === 'Operational') {
+                p4 += `System testing logged in 3 phases. Diagnostic: ${ensurePeriod(document.getElementById('testDiagnostic').value)} Post-Repair: ${ensurePeriod(document.getElementById('testRepair').value)} Final Verification: ${ensurePeriod(document.getElementById('testFinal').value)} Confirmed system operates within specified parameters and meets customer expectations. `;
             }
 
             if (document.getElementById('hasChangeOrder').value === 'Yes') {
@@ -384,13 +431,18 @@
             outputDiv.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Copy to Clipboard
+        // Copy to Clipboard and Redirect to Jobber
         function copyNote() {
             const copyText = document.getElementById('finalNote');
             copyText.select();
-            copyText.setSelectionRange(0, 99999);
+            copyText.setSelectionRange(0, 99999); // Mobile compatibility
+            
             navigator.clipboard.writeText(copyText.value).then(() => {
-                alert("Note copied! Switch to Jobber and paste it.");
+                alert("Note copied! Redirecting to Jobber...");
+                // Standard Jobber Web Login/App Fallback Link
+                window.location.href = "https://secure.getjobber.com/";
+            }).catch(err => {
+                alert("Failed to copy. Please manually copy the text.");
             });
         }
 
