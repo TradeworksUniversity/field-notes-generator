@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRD Note Generator</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 15px; max-width: 500px; margin: auto; background-color: #f4f6f8; color: #333; }
+        h2 { text-align: center; color: #2c3e50; font-size: 1.4rem; margin-bottom: 5px; }
+        p.subtitle { text-align: center; color: #7f8c8d; margin-top: 0; font-size: 0.9rem; margin-bottom: 20px; }
+        .section-title { background: #34495e; color: white; padding: 6px 10px; font-size: 0.9rem; font-weight: bold; border-radius: 4px; margin-top: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+        label { display: block; margin-top: 12px; font-weight: 600; font-size: 0.95rem; }
+        span.hint { display: block; color: #7f8c8d; font-size: 0.8rem; font-weight: normal; margin-top: 2px; italic; }
+        input, textarea { width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
+        textarea { resize: vertical; }
+        button { margin-top: 20px; padding: 12px; width: 100%; color: white; border: none; border-radius: 4px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .btn-generate { background: #007bc4; }
+        .btn-generate:hover { background: #005fa4; }
+        .btn-copy { background: #28a745; }
+        .btn-copy:hover { background: #218838; }
+        #outputSection { display: none; margin-top: 25px; background: white; padding: 15px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+
+    <h2>TRD Note Generator</h2>
+    <p class="subtitle">Fill out the fields to build your Jobber note chronologically.</p>
+
+    <form id="noteForm">
+        <!-- PHASE 1 -->
+        <div class="section-title">1. Arrival & Diagnostics</div>
+        
+        <label>Property Access & Directions
+            <span class="hint">Start with: "Property is located..." or "Access gate code is..." (Type "Easy to find" if standard)</span>
+        </label>
+        <input type="text" id="directions" required placeholder="Property is located...">
+
+        <label>Component Locations Found
+            <span class="hint">Start with: "Well head is located... pressure tank is in..."</span>
+        </label>
+        <textarea id="locations" rows="2" required placeholder="Well head is located..."></textarea>
+
+        <label>Customer Consultation/Notes
+            <span class="hint">Start with: "Spoke with customer regarding..." (Type "None" if customer wasn't home)</span>
+        </label>
+        <textarea id="conversations" rows="2" required placeholder="Spoke with customer regarding..."></textarea>
+
+        <!-- PHASE 2 -->
+        <div class="section-title">2. Work Executed</div>
+
+        <label>Work Performed & Materials Used
+            <span class="hint">Start with: "Pulled and replaced... Installed [Quantity, Type, Size]..."</span>
+        </label>
+        <textarea id="workDone" rows="3" required placeholder="Pulled and replaced..."></textarea>
+
+        <label>Dirt Work Breakdown
+            <span class="hint">Start with: "Machine time was X hours..." (Type "N/A" if no dirt work)</span>
+        </label>
+        <input type="text" id="dirtWork" required placeholder="N/A">
+
+        <!-- PHASE 3 -->
+        <div class="section-title">3. Testing & Closeout</div>
+
+        <label>System Testing & Future Estimates
+            <span class="hint">Start with: "System tested and operating at... Future change order needed for..."</span>
+        </label>
+        <textarea id="testing" rows="2" required placeholder="System tested and operating at..."></textarea>
+
+        <label>Time Tracking & Job Completion Status
+            <span class="hint">Start with: "Spent X mins drive / Y hours labor. Job is 100% complete..."</span>
+        </label>
+        <textarea id="status" rows="2" required placeholder="Spent X mins drive..."></textarea>
+
+        <button type="button" class="btn-generate" onclick="generateNote()">Generate Note Below</button>
+    </form>
+
+    <!-- SAME SCREEN OUTPUT -->
+    <div id="outputSection">
+        <label style="margin-top: 0; color: #2c3e50;">Your Formatted Jobber Note:</label>
+        <textarea id="finalNote" rows="12" readonly style="font-family: monospace; background: #f8f9fa; font-size: 0.9rem;"></textarea>
+        <button type="button" class="btn-copy" onclick="copyNote()">Copy Note to Clipboard</button>
+    </div>
+
+    <script>
+        function generateNote() {
+            // Grab inputs
+            const directions = document.getElementById('directions').value;
+            const locations = document.getElementById('locations').value;
+            const conversations = document.getElementById('conversations').value;
+            const workDone = document.getElementById('workDone').value;
+            const dirtWork = document.getElementById('dirtWork').value;
+            const testing = document.getElementById('testing').value;
+            const status = document.getElementById('status').value;
+
+            // Handle optional dirt work visibility
+            let dirtLine = "";
+            if (dirtWork.toLowerCase() !== 'n/a' && dirtWork.trim() !== '') {
+                dirtLine = `• Dirt Work Breakdown: ${dirtWork}\n`;
+            }
+
+            // Build chronological string
+            const noteText = `=== FIELD SERVICE TECHNICIAN NOTE ===\n` +
+                             `[SITE ARRIVAL & DIAGNOSTICS]\n` +
+                             `• Property Directions: ${directions}\n` +
+                             `• Component Locations Found: ${locations}\n` +
+                             `• Customer Consultation/Notes: ${conversations}\n\n` +
+                             `[WORK EXECUTED]\n` +
+                             `• Work Performed & Materials Used: ${workDone}\n` +
+                             `${dirtLine}\n` +
+                             `[TESTING & JOB CLOSEOUT]\n` +
+                             `• System Testing & Future Estimates: ${testing}\n` +
+                             `• Time Tracking & Job Completion Status: ${status}`;
+            
+            // Populate and show text box on same screen
+            document.getElementById('finalNote').value = noteText;
+            const outputDiv = document.getElementById('outputSection');
+            outputDiv.style.display = 'block';
+            
+            // Scroll down so they see it instantly
+            outputDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function copyNote() {
+            const copyText = document.getElementById('finalNote');
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); // Mobile compatibility
+            navigator.clipboard.writeText(copyText.value);
+            alert("Note copied! Switch to Jobber and paste it.");
+        }
+    </script>
+</body>
+</html>
