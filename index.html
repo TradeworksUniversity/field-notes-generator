@@ -137,6 +137,13 @@
             navigator.clipboard.writeText(copyText.value);
             alert("Note copied! Switch to Jobber and paste it.");
         }
+    <script>
+        // Register the blank service worker to allow Android WebAPK installation
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker Registered'))
+                .catch(err => console.log('Service Worker Failed', err));
+        }
     </script>
 </body>
 </html>
